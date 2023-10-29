@@ -13,6 +13,9 @@ import SignUp from './assets/Pages/SignUp/SignUp';
 import AuthProvider from './assets/Providers/AuthProvider';
 import CheckOut from './assets/Pages/CheckOut/CheckOut';
 import AddService from './assets/Pages/AddService/AddService';
+import CartDetails from './assets/Pages/CartDetails/CartDetails';
+import PrivateRoute from './assets/Providers/PrivateRoute';
+import Services from './assets/Pages/Services/Services';
 
 const router = createBrowserRouter([
   {
@@ -26,12 +29,21 @@ const router = createBrowserRouter([
       },
       {
         path: '/checkout/:id',
-        element: <CheckOut/>,
+        element: <PrivateRoute><CheckOut/></PrivateRoute>,
         loader: ({params})=> fetch(`http://localhost:5000/services/${params.id}`)
       },
       {
+        path: '/services',
+        element: <Services/>,
+        loader: ()=> fetch(`http://localhost:5000/services`)
+      },
+      {
+        path: '/cartdetails',
+        element: <PrivateRoute><CartDetails/></PrivateRoute>
+      },
+      {
         path: '/addService',
-        element: <AddService/>
+        element: <PrivateRoute><AddService/></PrivateRoute>
       },
       {
         path: '/login',

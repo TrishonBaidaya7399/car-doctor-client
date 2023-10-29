@@ -2,14 +2,18 @@
 import { FaFacebookF, FaLinkedinIn } from 'react-icons/fa';
 import { FcGoogle } from 'react-icons/fc';
 import loginBanner from "../../images/images/login/login.svg"
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import Swal from 'sweetalert2'
 import { useContext, useState } from 'react';
 import { AuthContext } from '../../Providers/AuthProvider';
 const Login = () => {
-  const {signIn, googleSignUp} = useContext(AuthContext);
+  const navigate = useNavigate();
+  const {signIn, googleSignUp, user} = useContext(AuthContext);
   const [error, setError] = useState(null)
+  const [loading, setLoading] = useState(false)
   const handleLogin = e =>{
     e.preventDefault();
+    setLoading(true);
     setError(null)
     const form = e.target;
     const email = form.email.value;
@@ -17,28 +21,57 @@ const Login = () => {
     signIn(email, password)
     .then(result=> {
       console.log(result.user)
-      form.reset()
+      setLoading(false)
+      Swal.fire({
+        title: 'Logged in!',
+        text: `${user?.displayName ? user.displayName : 'User'} logged in successfully!`,
+        icon: 'success',
+        confirmButtonText: 'exit'
+      })
+      form.reset();
+      navigate('/');
+
     })
     .catch(error=>{
+      setLoading(false)
       console.log(error.message);
       setError(error.message)
+      Swal.fire({
+        title: 'Login Failed!',
+        text: `${error.message}`,
+        icon: 'error',
+        confirmButtonText: 'exit'
+      })
     })
   }
 
   const handleGoogleSignIn = e =>{
     e.preventDefault();
+    setLoading(true)
     setError(null);
     googleSignUp()
     .then(result => {
       console.log(`User created with Google : ${result.displayName}`);
-      alert('User created with google successfully!', result.displayName)
+      setLoading(false)
+      Swal.fire({
+        title: 'Logged in!',
+        text: `${user?.displayName} logged in successfully!`,
+        icon: 'success',
+        confirmButtonText: 'exit'
+      })
+      navigate('/');
     })
     .catch(error=> {
+      setLoading(false);
       console.error(error.message);
-      alert(error.message)
+      Swal.fire({
+        title: 'Login Failed!',
+        text: `${error.message}`,
+        icon: 'error',
+        confirmButtonText: 'exit'
+      })
     })
   }
-
 
     return (
 <div className="hero min-h-screen">
@@ -65,7 +98,7 @@ const Login = () => {
         error &&  <p className="text-red-600 font-semibold">{error}</p>
        }
         <div className="form-control mt-6">
-        <input type="submit" value="Sign In" className="btn bg-orange-500 text-white" />
+        <input type="submit" value={loading ? 'Signing in...' : 'Sign In'} className="btn bg-orange-500 text-white" />
         </div>
         <div className="form-control mt-6">
             <p className="text-center mb-5 text-gray-500 text-[16px] font-semibold">Or Sign In with</p>
@@ -80,6 +113,7 @@ const Login = () => {
         </div>
       </form>
     </div>
+    
   </div>
 </div>
     );
