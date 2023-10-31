@@ -2,16 +2,19 @@
 import { FaFacebookF, FaLinkedinIn } from 'react-icons/fa';
 import { FcGoogle } from 'react-icons/fc';
 import loginBanner from "../../images/images/login/login.svg"
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useContext, useState } from 'react';
 import { AuthContext } from '../../Providers/AuthProvider';
-const SignUp = () => {
-  
-  const {createUser, updateUser, googleSignUp} = useContext(AuthContext);
-  const [error, setError] = useState(null)
+import Swal from 'sweetalert2'
 
+const SignUp = () => {  
+  const {createUser, updateUser, googleSignUp} = useContext(AuthContext);
+  const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(false)
+  const navigate = useNavigate()
   const handleSignUp = e =>{
     e.preventDefault();
+    setLoading(true)
     setError(null)
     const form = e.target;
     const name = form.name.value;
@@ -24,28 +27,44 @@ const SignUp = () => {
     createUser(email, password)
     .then(result => {
       console.log(result.user);
-      alert('Signed Up successfully!')
+      
       updateUser(name, photo)
       .then(()=> {
         console.log('Profile Updated!');
-        alert('Profile Updated!');
+        setLoading(false);
         form.reset();
+        Swal.fire({
+          title: 'Logged In!',
+          text: 'You are successfully logged in',
+          icon: 'success',
+          confirmButtonText: 'Ok!'
+        })
+        navigate('/');
       })
-      .catch(error=> {console.error(error.message)})
+      .catch(error=> {console.error(error.message); setLoading(false);})
     })
-    .catch(error=> setError(error.message))
+    .catch(error=> {setError(error.message); setLoading(false)})
   }
 
   const handleGoogleSignUp = e =>{
     e.preventDefault();
+    setLoading(true);
     setError(null);
     googleSignUp()
     .then(result => {
       console.log(`User created with Google : ${result.user.displayName}`);
-      alert(`User created with Google : ${result.user.displayName}`)
+      setLoading(false);
+      Swal.fire({
+        title: 'Logged In!',
+        text: 'You are successfully logged in',
+        icon: 'success',
+        confirmButtonText: 'Ok!'
+      })
+      navigate('/');
     })
     .catch(error=> {
       console.error(error.message);
+      setLoading(false);
       alert(error.message)
     })
   }
@@ -88,7 +107,7 @@ const SignUp = () => {
         error &&  <p className="text-red-600 font-semibold">{error}</p>
        }
         <div className="form-control mt-6">
-        <input type="submit" value="Sign Up" className="btn bg-orange-500 text-white" />
+        <input type="submit" value={loading ? "Loading..." : "Sign Up"} className="btn bg-orange-500 text-white" />
         </div>
         <div className="form-control mt-6">
             <p className="text-center mb-5 text-gray-500 text-[16px] font-semibold">Or Sign Up with</p>

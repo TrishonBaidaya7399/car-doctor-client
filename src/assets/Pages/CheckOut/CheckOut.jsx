@@ -2,13 +2,14 @@
 
 import { useLoaderData } from "react-router-dom";
 import Banner from "../../Shared/Banner/Banner";
-import { useContext } from "react";
+import { useContext, useState } from "react";
 import { AuthContext } from "../../Providers/AuthProvider";
 import Swal from 'sweetalert2'
 
 const CheckOut = () => {
     const service = useLoaderData();
     const { user } = useContext(AuthContext);
+    const [loading, setLoading] = useState(false);
     console.log(user);
 
     // Filter the first word from displayName
@@ -18,6 +19,7 @@ const CheckOut = () => {
 
     const handleCheckOut = (e) => {
         e.preventDefault();
+        setLoading(true)
         const form = e.target;
         const firstname = form.firstname.value;
         const lastname = form.lastname.value;
@@ -51,6 +53,7 @@ const CheckOut = () => {
         .then(res => res.json())
         .then(data => {
             console.log(data);
+            setLoading(false)
             Swal.fire({
                 title: 'Success!',
                 text: 'Successfully checked out',
@@ -83,7 +86,7 @@ const CheckOut = () => {
                        <textarea required type="text" name="message" placeholder="Your Message" className="bg-white rounded-lg p-4 w-full h-40" />
                     </div>
                     <div className=" gap-6">
-                       <input type="submit" value="Order Confirm" className="btn hover:bg-orange-600 text-md text-white font-semibold bg-orange-500 rounded-lg p-4 w-full" />
+                       <input type="submit" value={loading ? 'Confirming...' : 'Order Confirm'} className="btn hover:bg-orange-600 text-md text-white font-semibold bg-orange-500 rounded-lg p-4 w-full" />
                     </div>
                 </form>
             </div>

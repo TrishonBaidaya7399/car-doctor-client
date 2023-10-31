@@ -1,0 +1,19 @@
+.custom-arrow {
+    font-size: 30px;
+    color: orange;
+    cursor: pointer;
+}
+
+.custom-arrow.prev {
+    position: absolute;
+    top: 50%;
+    left: -30px;
+    transform: translateY(-50%);
+}
+
+.custom-arrow.next {
+    position: absolute;
+    top: 50%;
+    right: -30px;
+    transform: translateY(-50%);
+}

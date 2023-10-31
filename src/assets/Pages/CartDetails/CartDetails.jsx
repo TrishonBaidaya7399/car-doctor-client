@@ -7,9 +7,11 @@ import { AuthContext } from "../../Providers/AuthProvider";
 import Banner from "../../Shared/Banner/Banner";
 import Swal from 'sweetalert2';
 import { Link } from 'react-router-dom';
+import { RotatingLines } from  'react-loader-spinner'
 
 const CartDetails = () => {
     const { user } = useContext(AuthContext);
+    const [loading, setLoading] = useState(true);
     console.log(user);
     const url = `http://localhost:5000/bookings?email=${user?.email}`
     const [bookings, setBookings] = useState([])
@@ -18,6 +20,7 @@ const CartDetails = () => {
         .then(res => res.json())
         .then(data =>{
             setBookings(data);
+            setLoading(false)
         })
         .catch(error=>{
             console.error(error.message)
@@ -26,6 +29,7 @@ const CartDetails = () => {
     console.log(bookings);
 
     const handleDeleteAll = () =>{
+      setLoading(true);
       Swal.fire({
         title: 'Are you sure?',
         text: "You won't be able to revert this!",
@@ -41,6 +45,7 @@ const CartDetails = () => {
             })
             .then(res => res.json())
             .then(data => {
+              setLoading(false);
                 console.log(data);
                 if(data.deletedCount>0){
                     Swal.fire(
@@ -65,6 +70,7 @@ const CartDetails = () => {
       })
     }
     const handleRemove = id =>{
+      setLoading(true);
         console.log(id);
         Swal.fire({
             title: 'Are you sure?',
@@ -82,6 +88,7 @@ const CartDetails = () => {
                 .then(res => res.json())
                 .then(data => {
                     console.log(data);
+                    setLoading(false);
                     if(data.deletedCount>0){
                         Swal.fire(
                             'Deleted!',
@@ -98,6 +105,7 @@ const CartDetails = () => {
     }
 
     const handleConfirm = id =>{
+      setLoading(true);
       fetch(`http://localhost:5000/bookings/${id}`, {
         method: "PATCH",
         headers: {
@@ -107,6 +115,7 @@ const CartDetails = () => {
       })
       .then(res => res.json())
       .then(data => {
+        setLoading(false);
         console.log(data);
         if(data.modifiedCount > 0)
         {
@@ -129,7 +138,20 @@ const CartDetails = () => {
 <div className="mx-[20px] md:mx-[50px] lg:mx-[100px] ">
     <Banner address={"Cart Details"}/>
 <div className="overflow-x-auto my-[20px] md:my-[50px] lg:my-[80px]">
- {
+{
+  loading 
+  ? <div className='flex items-center justify-center'>
+    <RotatingLines
+    strokeColor="orange"
+    strokeWidth="5"
+    animationDuration="0.75"
+    width="120"
+    visible={true}
+    />
+    </div>
+  : 
+  <>
+   {
     bookings.length>0 
     ?
     <table className="table">
@@ -187,6 +209,8 @@ const CartDetails = () => {
         <h1 className="text-4xl text-orange-500 font-bold mt-4">Your cart is Empty!</h1>
     </div> 
  }
+  </>
+}
      <div className='flex justify-between mt-8 md:mx-[100px]'>
         <Link to="/services" className='flex gap-2 text-xl text-gray-500 font-semibold items-center'><FiCornerUpLeft/>Continue Shopping</Link>
         {

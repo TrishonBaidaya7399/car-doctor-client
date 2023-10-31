@@ -2,15 +2,18 @@
 import { FaFacebookF, FaLinkedinIn } from 'react-icons/fa';
 import { FcGoogle } from 'react-icons/fc';
 import loginBanner from "../../images/images/login/login.svg"
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2'
 import { useContext, useState } from 'react';
 import { AuthContext } from '../../Providers/AuthProvider';
+import axios from 'axios';
 const Login = () => {
   const navigate = useNavigate();
   const {signIn, googleSignUp, user} = useContext(AuthContext);
-  const [error, setError] = useState(null)
-  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const location = useLocation();
+
   const handleLogin = e =>{
     e.preventDefault();
     setLoading(true);
@@ -20,8 +23,16 @@ const Login = () => {
     const password = form.password.value;
     signIn(email, password)
     .then(result=> {
-      console.log(result.user)
+      const loggedInUser = result.user;
+      console.log(loggedInUser)
+      const user = { email }
+      //get access token
+      axios.post(`http://localhost:5000/jwt`, user)
+      .then(res =>{
+        console.log(res.data);
+      })
       setLoading(false)
+
       Swal.fire({
         title: 'Logged in!',
         text: `${user?.displayName ? user.displayName : 'User'} logged in successfully!`,
@@ -29,7 +40,7 @@ const Login = () => {
         confirmButtonText: 'exit'
       })
       form.reset();
-      navigate('/');
+      navigate(location?.state ? location?.state : '/');
 
     })
     .catch(error=>{
@@ -59,7 +70,7 @@ const Login = () => {
         icon: 'success',
         confirmButtonText: 'exit'
       })
-      navigate('/');
+      navigate(location?.state ? location?.state : '/');
     })
     .catch(error=> {
       setLoading(false);
